@@ -8,6 +8,10 @@ import { store } from './store';
 import HomeScreen from './src/screens/HomeScreen';
 import DetailsScreen from './src/screens/DetailsScreen';
 import CartScreen from './src/screens/CartScreen';
+import FavoritesScreen from './src/screens/FavoritesScreen';
+import CollaborativeCartScreen from './src/screens/CollaborativeCartScreen';
+import ComparisonScreen from './src/screens/ComparisonScreen';
+import FilterScreen from './src/screens/FilterScreen';
 import { RootStackParamList } from './src/types/navigation';
 import { useAppLifecycle } from './hooks/useAppLifecycle';
 
@@ -32,6 +36,26 @@ function AppContent() {
         <Stack.Screen 
           name="Cart" 
           component={CartScreen} 
+          options={{ headerShown: false }} 
+        />
+        <Stack.Screen 
+          name="Favorites" 
+          component={FavoritesScreen} 
+          options={{ headerShown: false }} 
+        />
+        <Stack.Screen 
+          name="CollaborativeCart" 
+          component={CollaborativeCartScreen} 
+          options={{ headerShown: false }} 
+        />
+        <Stack.Screen 
+          name="Comparison" 
+          component={ComparisonScreen} 
+          options={{ headerShown: false }} 
+        />
+        <Stack.Screen 
+          name="Filter" 
+          component={FilterScreen} 
           options={{ headerShown: false }} 
         />
       </Stack.Navigator>

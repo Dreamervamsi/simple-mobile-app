@@ -1,4 +1,9 @@
 {
   "name": "MyBareApp",
-  "displayName": "MyBareApp"
+  "displayName": "MyBareApp",
+  "extra": {
+    "eas": {
+      "projectId": "188aa2d6-a795-4df7-8a26-59e616b3f1c6"
+    }
+  }
 }

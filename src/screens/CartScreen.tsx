@@ -1,33 +1,56 @@
 import React from "react";
-import { FlatList, Image, Text, TouchableOpacity, View, SafeAreaView, Alert } from "react-native";
+import { FlatList, Image, Text, TouchableOpacity, View, SafeAreaView, Alert, Modal } from "react-native";
 import { useAppSelector, useAppDispatch } from "../../store/hooks";
 import { removeFromCart, clearCart } from "../../store/cartSlice";
 import { useNavigation } from "@react-navigation/native";
+import Animated, { FadeIn, SlideInRight, SlideOutRight, ZoomIn } from 'react-native-reanimated';
+import Confetti from '../components/Confetti';
 
 export default function CartScreen() {
     const navigation = useNavigation();
     const dispatch = useAppDispatch();
     const cartItems = useAppSelector((state) => state.cart.items);
+    const [showConfetti, setShowConfetti] = React.useState(false);
 
     const totalPrice = cartItems.reduce((sum, item) => sum + item.price, 0).toFixed(2);
 
-    const renderCartItem = ({ item }: { item: any }) => (
-        <View style={{
-            flexDirection: 'row',
-            padding: 15,
-            borderBottomWidth: 1,
-            borderBottomColor: '#eee',
-            alignItems: 'center'
-        }}>
-            <Image source={{ uri: item.thumbnail }} style={{ width: 50, height: 50, resizeMode: 'contain' }} />
+    const handleCheckout = () => {
+        setShowConfetti(true);
+        setTimeout(() => {
+            Alert.alert('🎉 Checkout successful!', 'Thank you for your purchase!');
+            dispatch(clearCart());
+            setShowConfetti(false);
+            navigation.goBack();
+        }, 2000);
+    };
+
+    const renderCartItem = ({ item, index }: { item: any; index: number }) => (
+        <Animated.View
+            entering={SlideInRight.delay(index * 50).springify()}
+            exiting={SlideOutRight}
+            style={{
+                flexDirection: 'row',
+                padding: 15,
+                borderBottomWidth: 1,
+                borderBottomColor: '#eee',
+                alignItems: 'center',
+                backgroundColor: '#fff'
+            }}
+        >
+            <Image source={{ uri: item.thumbnail }} style={{ width: 50, height: 50, resizeMode: 'contain', borderRadius: 8 }} />
             <View style={{ flex: 1, marginLeft: 15 }}>
-                <Text numberOfLines={1} style={{ fontWeight: 'bold' }}>{item.title}</Text>
-                <Text style={{ color: '#666' }}>${item.price}</Text>
+                <Text numberOfLines={1} style={{ fontWeight: 'bold', fontSize: 16 }}>{item.title}</Text>
+                <Text style={{ color: '#666', marginTop: 4 }}>${item.price}</Text>
             </View>
-            <TouchableOpacity onPress={() => dispatch(removeFromCart(item.id))}>
-                <Text style={{ color: 'red' }}>Remove</Text>
-            </TouchableOpacity>
-        </View>
+            <Animated.View entering={ZoomIn}>
+                <TouchableOpacity 
+                    onPress={() => dispatch(removeFromCart(item.id))}
+                    style={{ backgroundColor: '#fee', padding: 8, borderRadius: 6 }}
+                >
+                    <Text style={{ color: 'red', fontWeight: 'bold' }}>Remove</Text>
+                </TouchableOpacity>
+            </Animated.View>
+        </Animated.View>
     );
 
     return (
@@ -37,7 +60,7 @@ export default function CartScreen() {
                     <Text style={{ fontSize: 18, color: '#007AFF' }}>← Back</Text>
                 </TouchableOpacity>
 
-                <Text style={{ fontSize: 28, fontWeight: 'bold', marginBottom: 20 }}>Your Cart</Text>
+                <Animated.Text entering={FadeIn} style={{ fontSize: 28, fontWeight: 'bold', marginBottom: 20 }}>Your Cart</Animated.Text>
 
                 {cartItems.length === 0 ? (
                     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -67,22 +90,20 @@ export default function CartScreen() {
                                 <Text style={{ fontSize: 20, fontWeight: 'bold' }}>${totalPrice}</Text>
                             </View>
 
-                            <TouchableOpacity
-                                style={{
-                                    backgroundColor: '#000',
-                                    padding: 18,
-                                    borderRadius: 12,
-                                    alignItems: 'center',
-                                    marginBottom: 10
-                                }}
-                                onPress={() => {
-                                    Alert.alert('Checkout successful!');
-                                    dispatch(clearCart());
-                                    navigation.goBack();
-                                }}
-                            >
-                                <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>Checkout</Text>
-                            </TouchableOpacity>
+                            <Animated.View entering={ZoomIn.delay(100)}>
+                                <TouchableOpacity
+                                    style={{
+                                        backgroundColor: '#000',
+                                        padding: 18,
+                                        borderRadius: 12,
+                                        alignItems: 'center',
+                                        marginBottom: 10
+                                    }}
+                                    onPress={handleCheckout}
+                                >
+                                    <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>Checkout</Text>
+                                </TouchableOpacity>
+                            </Animated.View>
 
                             <TouchableOpacity
                                 onPress={() => dispatch(clearCart())}
@@ -95,5 +116,9 @@ export default function CartScreen() {
                 )}
             </View>
         </SafeAreaView>
+        
+        <Modal visible={showConfetti} transparent animationType="fade">
+            <Confetti />
+        </Modal>
     );
 }
